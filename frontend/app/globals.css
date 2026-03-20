@@ -1,0 +1,174 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: #f6f1e7;
+  --foreground: #2b3038;
+  --card: #fffdfa;
+  --card-foreground: #2b3038;
+  --popover: #ffffff;
+  --popover-foreground: #2b3038;
+  --primary: #1f2937;
+  --primary-foreground: #f8fafc;
+  --secondary: #ece3d0;
+  --secondary-foreground: #5b4e3d;
+  --muted: #f7f3eb;
+  --muted-foreground: #7d7468;
+  --accent: #f0e2c6;
+  --accent-foreground: #7a5b28;
+  --destructive: #dc2626;
+  --border: #e3d8c6;
+  --input: #ebe2d3;
+  --ring: #b88a44;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: #161a20;
+  --foreground: #edf2f7;
+  --card: #1d232b;
+  --card-foreground: #edf2f7;
+  --popover: #1d232b;
+  --popover-foreground: #edf2f7;
+  --primary: #e8d6b4;
+  --primary-foreground: #2b3038;
+  --secondary: #2a323d;
+  --secondary-foreground: #d5c6a8;
+  --muted: #242c36;
+  --muted-foreground: #9ca7b6;
+  --accent: #3c2f1f;
+  --accent-foreground: #f1dfbd;
+  --destructive: #ef4444;
+  --border: #313b48;
+  --input: #313b48;
+  --ring: #c49b5a;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/40;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    @apply text-foreground;
+    background-image:
+      radial-gradient(circle at 8% -10%, #f8e7c6 0%, transparent 38%),
+      radial-gradient(circle at 90% 0%, #dbe9e4 0%, transparent 32%),
+      linear-gradient(180deg, #f8f3ea 0%, #f3efe7 100%);
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at 10% -10%, #3f2f1f 0%, transparent 36%),
+      radial-gradient(circle at 90% 0%, #203240 0%, transparent 32%),
+      linear-gradient(180deg, #15191f 0%, #12161b 100%);
+  }
+}
+
+@keyframes float-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), Georgia, serif;
+    letter-spacing: 0.01em;
+  }
+
+  .publication-shell {
+    border: 1px solid #dfd3bd;
+    background: linear-gradient(180deg, #fffefb 0%, #fff9f1 100%);
+    box-shadow: 0 2px 12px rgba(41, 35, 26, 0.06);
+  }
+
+  .surface-card {
+    @apply rounded-2xl border bg-white/95 shadow-sm transition-all duration-300;
+    border-color: #e3d7c3;
+  }
+
+  .surface-card:hover {
+    @apply -translate-y-0.5 shadow-md;
+    box-shadow: 0 12px 22px -16px rgba(66, 53, 34, 0.45);
+  }
+
+  .animate-float-up {
+    animation: float-up 420ms ease-out both;
+  }
+
+  .glow-divider {
+    background-image: linear-gradient(90deg, transparent, #c49b5a, transparent);
+    background-size: 200% 100%;
+    animation: glow-sweep 4s linear infinite;
+  }
+
+  .ink-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.2em];
+    color: #8d7447;
+  }
+
+  .chapter-title {
+    @apply font-display text-2xl text-slate-900 md:text-3xl;
+  }
+
+  .paper-chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold;
+    background: #f8edda;
+    color: #7a5b28;
+    border: 1px solid #ecd7ae;
+  }
+}
