@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bot, SendHorizonal, X } from "lucide-react";
 import { toast } from "sonner";
@@ -8,8 +8,17 @@ import { toast } from "sonner";
 import { Ticket } from "@/lib/types";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AiSuggestionChat } from "./ai-suggestion-chat";
+
+const TICKET_STATUSES: Ticket["status"][] = ["Open", "In Progress", "Resolved", "Closed"];
 
 interface TicketDetailDrawerProps {
   open: boolean;
@@ -47,8 +56,18 @@ export function TicketDetailDrawer({
 }: TicketDetailDrawerProps) {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [status, setStatus] = useState<Ticket["status"]>("Open");
   const [isTyping, setIsTyping] = useState(false);
   const [refinedSuggestion, setRefinedSuggestion] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!ticket) {
+      return;
+    }
+
+    setStatus(ticket.status);
+  }, [ticket]);
 
   const orderedMessages = useMemo(
     () => [...(ticket?.messages || [])].sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt)),
@@ -72,6 +91,30 @@ export function TicketDetailDrawer({
     } finally {
       setSending(false);
       setTimeout(() => setIsTyping(false), 450);
+    }
+  }
+
+  async function updateStatus(nextStatus?: Ticket["status"]) {
+    if (!ticket) {
+      return;
+    }
+
+    const targetStatus = nextStatus || status;
+    if (ticket.status === targetStatus) {
+      toast.message("Status is already up to date");
+      return;
+    }
+
+    try {
+      setUpdatingStatus(true);
+      const response = await api.patch(`/tickets/${ticket._id}/status`, { status: targetStatus });
+      onTicketUpdated(response.data.data);
+      setStatus(response.data.data.status);
+      toast.success(`Ticket marked as ${targetStatus}`);
+    } catch {
+      toast.error("Failed to update status");
+    } finally {
+      setUpdatingStatus(false);
     }
   }
 
@@ -121,6 +164,43 @@ export function TicketDetailDrawer({
               </div>
 
               <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+                <div className="rounded-xl border border-[#e4d4bb] bg-white p-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                    <div className="w-full sm:max-w-[250px]">
+                      <p className="ink-kicker">Status</p>
+                      <Select value={status} onValueChange={(value) => setStatus(value as Ticket["status"])}>
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TICKET_STATUSES.map((item) => (
+                            <SelectItem key={item} value={item}>
+                              {item}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => updateStatus("Resolved")}
+                        disabled={updatingStatus}
+                      >
+                        Mark Resolved
+                      </Button>
+                      <Button
+                        onClick={() => updateStatus()}
+                        disabled={updatingStatus}
+                        className="bg-[#2a3648] text-[#fff7ea] hover:bg-[#1f2a3a]"
+                      >
+                        {updatingStatus ? "Saving..." : "Update Status"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="rounded-xl border border-[#e4d4bb] bg-[#fff8ea] p-3">
                   <p className="ink-kicker">Issue</p>
                   <p className="mt-1 text-sm text-[#5f5648]">{ticket.description}</p>
